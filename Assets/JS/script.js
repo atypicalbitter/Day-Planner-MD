@@ -12,4 +12,14 @@ $(document).ready(function () {
     } else {
         textArea.addClass("future");
     }
-});
+    saveBtn.on("click", function () {
+        const userInput = textArea.val().trim();
+        const currentHour = formatHour(hour).replace(/\s+/g, "").toLowerCase(); 
+
+        if (userInput !== "") {
+            localStorage.setItem(currentHour, userInput);
+          } else {
+            localStorage.removeItem(currentHour);
+        }
+      });
+    });
