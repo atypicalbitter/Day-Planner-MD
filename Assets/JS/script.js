@@ -2,24 +2,51 @@ $(document).ready(function () {
     function formatHour(hour) {
       return dayjs().hour(hour).format("h A");
     }
-
-    $("#currentDay").text(dayjs().format("dddd, MMMM D"));
-
-    if (hour < currentHour) {
+  
+    function createRow(hour) {
+      const row = $("<div>").addClass("row time-block");
+      const timeCol = $("<div>").addClass("col-md-1 hour").text(formatHour(hour));
+      const textArea = $("<textarea>").addClass("col-md-10 description").attr("data-hour", formatHour(hour).replace(/\s+/g, "").toLowerCase());
+      const saveBtn = $("<button>").addClass("col-md-1 saveBtn").html("<i class='fas fa-save'></i>");
+  
+      const currentHour = dayjs().hour();
+  
+      if (hour < currentHour) {
         textArea.addClass("past");
-    } else if (hour === currentHour) {
+      } else if (hour === currentHour) {
         textArea.addClass("present");
-    } else {
+      } else {
         textArea.addClass("future");
-    }
-    saveBtn.on("click", function () {
+      }
+  
+      saveBtn.on("click", function () {
         const userInput = textArea.val().trim();
-        const currentHour = formatHour(hour).replace(/\s+/g, "").toLowerCase(); 
-
+        const currentHour = textArea.data("hour");
+  
         if (userInput !== "") {
-            localStorage.setItem(currentHour, userInput);
-          } else {
-            localStorage.removeItem(currentHour);
+          localStorage.setItem(currentHour, userInput);
+        } else {
+          localStorage.removeItem(currentHour);
         }
       });
-    });
+  
+      row.append(timeCol, textArea, saveBtn);
+      $(".container").append(row);
+    }
+  
+    function loadEvents() {
+      for (let hour = 8; hour <= 20; hour++) {
+        createRow(hour);
+        const currentHour = formatHour(hour).replace(/\s+/g, "").toLowerCase();
+        const savedEvent = localStorage.getItem(currentHour);
+  
+        if (savedEvent) {
+          $(`textarea[data-hour="${currentHour}"]`).val(savedEvent);
+        }
+      }
+    }
+  
+    $("#currentDay").text(dayjs().format("dddd, MMMM D"));
+    loadEvents();
+  });
+  
